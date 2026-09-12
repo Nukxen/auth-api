@@ -1,0 +1,37 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model rg_users {
+  id            String    @id @default(uuid(7))
+  username      String
+  email         String    @unique
+  password_hash String
+  verified_at   DateTime?
+  created_at    DateTime  @default(now())
+
+  rgSessions          rg_sessions[]
+  qqVerificationCodes qq_verification_codes[]
+}
+
+model rg_sessions {
+  id               String   @id @default(uuid(7))
+  user_id_relation rg_users @relation(fields: [user_id], references: [id])
+  user_id          String
+  created_at       DateTime @default(now())
+  expired_at       DateTime
+}
+
+model qq_verification_codes {
+  id               String    @id @default(uuid(7))
+  user_id_relation rg_users  @relation(fields: [user_id], references: [id])
+  user_id          String    @unique
+  created_at       DateTime  @default(now())
+  fullfilled_at    DateTime?
+}
